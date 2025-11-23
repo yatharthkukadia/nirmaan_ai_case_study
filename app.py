@@ -87,8 +87,8 @@ if st.button("🎯 Score Transcript", type="primary", use_container_width=True):
             
             for criterion in results['criteria']:
                 with st.expander(f"**{criterion['name']}** - Score: {criterion['score']:.1f}/{criterion['max_score']}", expanded=show_details):
-                    # Progress bar
-                    progress = criterion['score'] / criterion['max_score'] if criterion['max_score'] > 0 else 0
+                    # Progress bar - Convert to float to avoid numpy float32 issues
+                    progress = float(criterion['score'] / criterion['max_score']) if criterion['max_score'] > 0 else 0.0
                     st.progress(progress)
                     
                     # Feedback
