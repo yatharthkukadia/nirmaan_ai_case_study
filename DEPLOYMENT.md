@@ -16,8 +16,8 @@ Before starting, ensure you have the following software installed on your system
 Clone the project from your public GitHub repository to your local machine:
 
 ```bash
-git clone [YOUR_REPOSITORY_URL]
-cd [YOUR_REPOSITORY_NAME]
+git clone https://github.com/yatharthkukadia/nirmaan_ai_case_study.git
+cd nirmaan_ai_case_study
 ```
 
 ---
