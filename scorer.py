@@ -63,6 +63,14 @@ class TranscriptScorer:
             }
         }
     
+    def _to_python_type(self, value):
+        """Convert numpy types to Python native types for JSON serialization"""
+        if isinstance(value, (np.integer, np.floating)):
+            return float(value)
+        elif isinstance(value, np.ndarray):
+            return value.tolist()
+        return value
+    
     def score_transcript(self, transcript, duration_minutes=1.5):
         """Main scoring function"""
         transcript = transcript.strip()
@@ -93,7 +101,7 @@ class TranscriptScorer:
         results['criteria'].append(speech_rate_result)
         total_weighted_score += speech_rate_result['score']
         if 'wpm' in speech_rate_result:
-            results['wpm'] = speech_rate_result['wpm']
+            results['wpm'] = float(speech_rate_result['wpm'])
         
         # 4. Language & Grammar
         grammar_result = self._score_grammar(transcript)
@@ -111,7 +119,7 @@ class TranscriptScorer:
         total_weighted_score += engagement_result['score']
         
         # Calculate overall score (normalized to 100)
-        results['overall_score'] = (total_weighted_score / total_weight) * 100
+        results['overall_score'] = float((total_weighted_score / total_weight) * 100)
         
         return results
     
@@ -144,8 +152,8 @@ class TranscriptScorer:
         
         return {
             'name': 'Salutation',
-            'score': score,
-            'max_score': max_score,
+            'score': float(score),
+            'max_score': float(max_score),
             'feedback': feedback,
             'keywords_found': found_keywords
         }
@@ -196,8 +204,8 @@ class TranscriptScorer:
         
         return {
             'name': 'Content & Structure',
-            'score': score,
-            'max_score': max_score,
+            'score': float(score),
+            'max_score': float(max_score),
             'feedback': feedback,
             'keywords_found': all_keywords_found[:10],  # Limit to 10 for display
             'details': {
@@ -238,10 +246,10 @@ class TranscriptScorer:
         
         return {
             'name': 'Speech Rate',
-            'score': score,
-            'max_score': max_score,
+            'score': float(score),
+            'max_score': float(max_score),
             'feedback': feedback,
-            'wpm': wpm,
+            'wpm': float(wpm),
             'details': {
                 'Words per minute': f"{wpm:.0f}",
                 'Ideal range': f"{min_wpm}-{max_wpm} WPM"
@@ -307,13 +315,13 @@ class TranscriptScorer:
         
         return {
             'name': 'Language & Grammar',
-            'score': score,
-            'max_score': max_score,
+            'score': float(score),
+            'max_score': float(max_score),
             'feedback': f"{grammar_feedback} {vocab_feedback}",
             'details': {
-                'Grammar errors': grammar_errors,
+                'Grammar errors': int(grammar_errors),
                 'Vocabulary richness (TTR)': f"{ttr:.2%}",
-                'Unique words': len(unique_words)
+                'Unique words': int(len(unique_words))
             }
         }
     
@@ -354,11 +362,11 @@ class TranscriptScorer:
         
         return {
             'name': 'Clarity',
-            'score': score,
-            'max_score': max_score,
+            'score': float(score),
+            'max_score': float(max_score),
             'feedback': feedback,
             'details': {
-                'Filler words count': filler_count,
+                'Filler words count': int(filler_count),
                 'Filler word ratio': f"{filler_ratio:.1f}%",
                 'Fillers found': ', '.join(found_fillers) if found_fillers else 'None'
             }
@@ -398,12 +406,12 @@ class TranscriptScorer:
         
         return {
             'name': 'Engagement',
-            'score': score,
-            'max_score': max_score,
+            'score': float(score),
+            'max_score': float(max_score),
             'feedback': feedback,
             'keywords_found': found_positive,
             'details': {
-                'Positive words': positive_count,
+                'Positive words': int(positive_count),
                 'Shows emotion': 'Yes' if has_emotion else 'No'
             }
         }
@@ -413,6 +421,6 @@ class TranscriptScorer:
         try:
             embeddings = self.model.encode([text1, text2])
             similarity = cosine_similarity([embeddings[0]], [embeddings[1]])[0][0]
-            return max(0, similarity)  # Ensure non-negative
+            return float(max(0, similarity))  # Ensure non-negative and Python float
         except:
             return 0.5  # Default similarity if calculation fails
